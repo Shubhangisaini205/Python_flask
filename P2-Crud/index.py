@@ -1,28 +1,49 @@
+from flask import Flask, render_template, request, redirect
 
-from flask import Flask, request
 app = Flask(__name__)
+entries = {}  # Python dictionary to store the data
 
-@app.route('/')
-def welcome():
-    return 'Welcome to the Flask application!!'
 
-@app.route('/greet/<username>')
-def greet_user(username):
-    return f'Hello, {username}!'
+@app.route('/', methods=['GET', 'POST'])
+def create():
+    if request.method == 'POST':
+        key = request.form['key']
+        value = request.form['value']
+        entries[key] = value
+        print(entries,'create')
+        return redirect('/read')
+    return render_template('create.html')
 
-@app.route('/greet/<username>/<int:age>')
-def greet_user(username, age):
-    location = request.args.get('location')
-    message = f'Hello, {username}! You are {age} years old.'
-    if location:
-        message += f' You are located in {location}.'
-    return message
 
-@app.route('/farewell/<username>')
-def farewell_user(username):
-    return f'Goodbye, {username}!'
+@app.route('/read')
+def read():
+    print(entries,'read')
+    return render_template('read.html', entries=entries)
+
+
+@app.route('/update', methods=['GET', 'POST'])
+def update():
+    key=request.args.get('key')
+    if request.method == 'POST':
+        value = request.form.get('value')
+        key = request.form.get('key')
+        entries[key] = value
+        print
+        (key,value,'update')
+        return redirect('/read')
+
+    return render_template('update.html', key=key, value=entries[key])
+
+
+@app.route('/delete', methods=['GET', 'POST'])
+def delete():
+    if request.method == 'POST':
+        key = request.form['key']
+        if key in entries:
+            del entries[key]
+        return redirect('/read')
+    return render_template('delete.html')
 
 
 if __name__ == '__main__':
-    app.run(debug=True,port=8000)
-
+    app.run(debug=True)
