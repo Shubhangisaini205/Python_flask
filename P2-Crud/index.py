@@ -35,14 +35,11 @@ def update():
     return render_template('update.html', key=key, value=entries[key])
 
 
-@app.route('/delete', methods=['GET', 'POST'])
-def delete():
-    if request.method == 'POST':
-        key = request.form['key']
-        if key in entries:
-            del entries[key]
-        return redirect('/read')
-    return render_template('delete.html')
+@app.route('/delete/<key>')
+def delete(key):
+    del entries[key]
+    return redirect('/read')
+    
 
 
 if __name__ == '__main__':
